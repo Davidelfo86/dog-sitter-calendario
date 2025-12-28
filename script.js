@@ -19,25 +19,44 @@ function login() {
     }
 }
 
-// Inizializza il calendario
+// Inizializza il calendario con dati dinamici
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        selectable: true,
-        events: [
-            { title: '0 posti', start: '2026-01-05', color: 'red' },
-            { title: '1 posto', start: '2026-01-06', color: 'orange' },
-            { title: '2 posti', start: '2026-01-07', color: 'green' }
-        ],
-        select: function(info) {
-            // Quando l'utente seleziona una data
-            const startDate = info.startStr;
-            const link = `https://wa.me/1234567890?text=Ciao,+vorrei+prenotare+il+${startDate}`;
-            if(confirm(`Vuoi prenotare il ${startDate}? Verrai reindirizzato a WhatsApp.`)) {
-                window.open(link, '_blank');
-            }
-        }
-    });
-    calendar.render();
+
+    // Recupera dati disponibilità dal JSON
+    fetch('availability.json')
+        .then(response => response.json())
+        .then(data => {
+            const events = data.map(item => {
+                let color = 'green';
+                let title = item.posti + " posti";
+                if(item.posti === 0) { color = 'red'; title = "Non disponibile"; }
+                else if(item.posti === 1) { color = 'orange'; title = "1 posto"; }
+                return { title: title, start: item.date, color: color, posti: item.posti };
+            });
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                selectable: true,
+                events: events,
+                select: function(info) {
+                    const selectedEvent = events.find(e => e.start === info.startStr);
+                    if(selectedEvent && selectedEvent.posti > 0) {
+                        const startDate = info.startStr;
+                        const link = `https://wa.me/1234567890?text=Ciao,+vorrei+prenotare+il+${startDate}`;
+                        if(confirm(`Vuoi prenotare il ${startDate}? Verrai reindirizzato a WhatsApp.`)) {
+                            window.open(link, '_blank');
+                        }
+                    } else {
+                        alert("Data non disponibile");
+                    }
+                }
+            });
+
+            calendar.render();
+        })
+        .catch(err => {
+            console.error("Errore caricamento disponibilità:", err);
+            alert("Impossibile caricare la disponibilità. Controlla il file availability.json.");
+        });
 }
