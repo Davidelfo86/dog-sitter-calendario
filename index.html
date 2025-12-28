@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Dog Sitter Calendar</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Dog Sitter - Prenotazioni</h1>
+
+    <!-- Login semplice -->
+    <div id="loginDiv">
+        <input type="text" id="username" placeholder="Nome utente">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Accedi</button>
+        <p id="loginMsg"></p>
+    </div>
+
+    <!-- Calendario -->
+    <div id="calendarDiv" style="display:none;">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
