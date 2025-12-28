@@ -1,4 +1,4 @@
-// Login semplice (puoi aggiungere altri utenti se vuoi)
+// Login semplice
 const utenti = {
     "cliente1": "password1",
     "cliente2": "password2"
@@ -10,11 +10,13 @@ function login() {
     const msg = document.getElementById("loginMsg");
 
     if (utenti[username] && utenti[username] === password) {
+        msg.style.color = "green";
         msg.textContent = "Login effettuato!";
         document.getElementById("loginDiv").style.display = "none";
         document.getElementById("calendarDiv").style.display = "block";
         initCalendar();
     } else {
+        msg.style.color = "red";
         msg.textContent = "Nome utente o password errati";
     }
 }
@@ -22,17 +24,15 @@ function login() {
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
 
-    // Link CSV pubblico del tuo Google Sheet (pubblicato su web)
+    // Link CSV pubblico del tuo Google Sheet
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyoiqz94Cvk9EQHjdds2HjWsm287fPOwmnk8SgxStOtuii2MPyIcU8DF2Zc6YminBxVws8jEJEyaQz/pub?output=csv";
 
-    // Usa Papa Parse per leggere il CSV
     Papa.parse(csvUrl, {
         download: true,
         header: true,
         complete: function(results) {
             const data = results.data;
 
-            // Trasforma i dati in eventi per il calendario
             const events = data.map(item => {
                 const posti = Number(item.Posti);
                 let color = "green";
@@ -54,7 +54,6 @@ function initCalendar() {
                 };
             });
 
-            // Inizializza FullCalendar
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: "dayGridMonth",
                 selectable: true,
