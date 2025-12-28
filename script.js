@@ -1,4 +1,4 @@
-// Login semplice
+// Login semplice (puoi aggiungere altri utenti se vuoi)
 const utenti = {
     "cliente1": "password1",
     "cliente2": "password2"
@@ -19,33 +19,54 @@ function login() {
     }
 }
 
-// Inizializza calendario leggendo dal Google Sheet
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
 
-    Tabletop.init({
-        key: 'IL_TUO_ID_DEL_FOGLIO', // sostituisci con il tuo ID
-        simpleSheet: true,
-        callback: function(data) {
+    // Link CSV pubblico del tuo Google Sheet (pubblicato su web)
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyoiqz94Cvk9EQHjdds2HjWsm287fPOwmnk8SgxStOtuii2MPyIcU8DF2Zc6YminBxVws8jEJEyaQz/pub?output=csv";
+
+    // Usa Papa Parse per leggere il CSV
+    Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            const data = results.data;
+
+            // Trasforma i dati in eventi per il calendario
             const events = data.map(item => {
-                let color = 'green';
-                let title = item.Posti + " posti";
-                if(item.Posti == 0) { color = 'red'; title = "Non disponibile"; }
-                else if(item.Posti == 1) { color = 'orange'; title = "1 posto"; }
-                return { title: title, start: item.Data, color: color, posti: Number(item.Posti) };
+                const posti = Number(item.Posti);
+                let color = "green";
+                let title = posti + " posti";
+
+                if (posti === 0) {
+                    color = "red";
+                    title = "Non disponibile";
+                } else if (posti === 1) {
+                    color = "orange";
+                    title = "1 posto";
+                }
+
+                return {
+                    title: title,
+                    start: item.Data,
+                    color: color,
+                    posti: posti
+                };
             });
 
+            // Inizializza FullCalendar
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
+                initialView: "dayGridMonth",
                 selectable: true,
                 events: events,
                 select: function(info) {
-                    const selectedEvent = events.find(e => e.start === info.startStr);
-                    if(selectedEvent && selectedEvent.posti > 0) {
+                    const eventClicked = events.find(e => e.start === info.startStr);
+                    if (eventClicked && eventClicked.posti > 0) {
                         const startDate = info.startStr;
                         const link = `https://wa.me/1234567890?text=Ciao,+vorrei+prenotare+il+${startDate}`;
-                        if(confirm(`Vuoi prenotare il ${startDate}? Verrai reindirizzato a WhatsApp.`)) {
-                            window.open(link, '_blank');
+
+                        if (confirm(`Vuoi prenotare il ${startDate}? Verrai reindirizzato a WhatsApp.`)) {
+                            window.open(link, "_blank");
                         }
                     } else {
                         alert("Data non disponibile");
@@ -54,6 +75,10 @@ function initCalendar() {
             });
 
             calendar.render();
+        },
+        error: function(err) {
+            console.error("Errore nel caricamento del CSV:", err);
+            alert("Errore nel caricamento del foglio. Controlla che il foglio sia pubblicato correttamente.");
         }
     });
 }
