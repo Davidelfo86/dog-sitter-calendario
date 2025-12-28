@@ -19,20 +19,20 @@ function login() {
     }
 }
 
-// Inizializza il calendario con dati dinamici
+// Inizializza calendario leggendo dal Google Sheet
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
 
-    // Recupera dati disponibilità dal JSON
-    fetch('availability.json')
-        .then(response => response.json())
-        .then(data => {
+    Tabletop.init({
+        key: 'IL_TUO_ID_DEL_FOGLIO', // sostituisci con il tuo ID
+        simpleSheet: true,
+        callback: function(data) {
             const events = data.map(item => {
                 let color = 'green';
-                let title = item.posti + " posti";
-                if(item.posti === 0) { color = 'red'; title = "Non disponibile"; }
-                else if(item.posti === 1) { color = 'orange'; title = "1 posto"; }
-                return { title: title, start: item.date, color: color, posti: item.posti };
+                let title = item.Posti + " posti";
+                if(item.Posti == 0) { color = 'red'; title = "Non disponibile"; }
+                else if(item.Posti == 1) { color = 'orange'; title = "1 posto"; }
+                return { title: title, start: item.Data, color: color, posti: Number(item.Posti) };
             });
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -54,9 +54,6 @@ function initCalendar() {
             });
 
             calendar.render();
-        })
-        .catch(err => {
-            console.error("Errore caricamento disponibilità:", err);
-            alert("Impossibile caricare la disponibilità. Controlla il file availability.json.");
-        });
+        }
+    });
 }
